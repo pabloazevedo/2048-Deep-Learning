@@ -1,3 +1,6 @@
+var log = "";
+
+
 var StateManager = {
 	previousMove: false,
 	maxVal: 0,
@@ -83,10 +86,12 @@ function GameManager(size, InputManager, Actuator) {
     if (this.running) {
       this.running = false;
       this.actuator.setRunButton('Auto-run');
+			download("logResults.txt", log);
     } else {
       this.running = true;
       this.run()
       this.actuator.setRunButton('Stop');
+
         try{
   		console.log('Initiate brain load');
   	//	this.ai.brain = JSONfn.parse( document.getElementById('savestate').value );
@@ -115,7 +120,7 @@ GameManager.prototype.setup = function () {
   }else{
   	this.ai = this.ai;
   }
-  
+
   this.score        = 0;
   this.over         = false;
   this.won          = false;
@@ -143,6 +148,8 @@ GameManager.prototype.actuate = function () {
 GameManager.prototype.logResults = function() {
 	var GM = this;
 
+
+
 	StateManager.scores.push( this.score );
 
 	if( StateManager.lowestScore === false || StateManager.lowestScore > this.score )
@@ -155,7 +162,7 @@ GameManager.prototype.logResults = function() {
 		StateManager.medianScore = this.score;
 		StateManager.meanScore = this.score;
 	}else{
-	
+
 		var sum = 0;
 		StateManager.medianScore = getMedian(StateManager.scores);
 		for( score in StateManager.scores ){
@@ -167,10 +174,11 @@ GameManager.prototype.logResults = function() {
 		StateManager.meanScore = sum / StateManager.scores.length;
 		StateManager.gamesPlayed = StateManager.scores.length;
 
+
 	}
 
 	updateChart();
-	
+
 	// ~~val double bitwise NOT to convert to int
 	document.getElementById('highest-score').innerHTML='Highest Score: ' + ~~StateManager.highestScore;
 	document.getElementById('lowest-score').innerHTML='Lowest Score: ' + ~~StateManager.lowestScore;
@@ -181,7 +189,7 @@ GameManager.prototype.logResults = function() {
 	// the entire object is now simply string. You can save this somewhere
 	//var str = JSONfn.stringify(this.ai.brain);
 	//document.getElementById('savestate').value=str;
-	
+
 	if( !this.win ){
 		setTimeout( function() {
 
@@ -195,8 +203,20 @@ GameManager.prototype.logResults = function() {
 
 };
 
+
+
 // makes a given move and updates state
 GameManager.prototype.move = function(direction) {
+
+	var d = new Date();
+	var n = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds();
+
+
+	console.log("direcao_do_teclado:_"+direction);
+	//download("log.txt",direction);
+			log+=direction.toString()+" "+n+" "+";"+"\n";
+
+
   var result = this.grid.move(direction);
   this.score += result.score;
 	this.ai.setMoved(result.moved);
@@ -246,4 +266,19 @@ GameManager.prototype.run = function() {
       self.run();
     }, timeout);
   }
+}
+
+
+
+function download(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }
