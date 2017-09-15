@@ -86,7 +86,7 @@ function GameManager(size, InputManager, Actuator) {
     if (this.running) {
       this.running = false;
       this.actuator.setRunButton('Auto-run');
-			download("logResults.txt", log);
+			//download("logResults.txt", log);
     } else {
       this.running = true;
       this.run()
@@ -94,9 +94,11 @@ function GameManager(size, InputManager, Actuator) {
 
         try{
   		console.log('Initiate brain load');
+			download("logResults.txt", log);
   	//	this.ai.brain = JSONfn.parse( document.getElementById('savestate').value );
   	}catch(err){ /* Do nothing */ console.log('Brain failed to load'); }
     }
+			//download("logResults.txt", log);
   }.bind(this));
 
   this.setup();
@@ -148,8 +150,6 @@ GameManager.prototype.actuate = function () {
 GameManager.prototype.logResults = function() {
 	var GM = this;
 
-
-
 	StateManager.scores.push( this.score );
 
 	if( StateManager.lowestScore === false || StateManager.lowestScore > this.score )
@@ -173,7 +173,6 @@ GameManager.prototype.logResults = function() {
 		console.log( sum );
 		StateManager.meanScore = sum / StateManager.scores.length;
 		StateManager.gamesPlayed = StateManager.scores.length;
-
 
 	}
 
@@ -204,18 +203,15 @@ GameManager.prototype.logResults = function() {
 };
 
 
-
 // makes a given move and updates state
 GameManager.prototype.move = function(direction) {
 
 	var d = new Date();
 	var n = d.getHours()+":"+d.getMinutes()+":"+d.getSeconds()+":"+d.getMilliseconds();
 
-
-	console.log("direcao_do_teclado:_"+direction);
+	console.log("KeyboardDirection:_"+direction);
 	//download("log.txt",direction);
 			log+=direction.toString()+" "+n+" "+";"+"\n";
-
 
   var result = this.grid.move(direction);
   this.score += result.score;
@@ -266,19 +262,4 @@ GameManager.prototype.run = function() {
       self.run();
     }, timeout);
   }
-}
-
-
-
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
-
-  element.style.display = 'none';
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
 }
